@@ -121,13 +121,14 @@
         time: new Date(Date.UTC(2025, 7, 20, 12, 0, 0)), 
         title: "Comeback",
         msg: "The event has started!"
-      },
-      {
-        // End: Sun, 08 Sept. 2024, 21:45 NPT → Sun, 08 Sept. 2024, 16:00 UTC
-        time: new Date(Date.UTC(2025, 7, 21, 12, 0, 0)), 
-        title: "End of Comeback",
-        msg: "The event has ended!"
       }
+        //,
+      // {
+      //   // End: Sun, 08 Sept. 2024, 21:45 NPT → Sun, 08 Sept. 2024, 16:00 UTC
+      //   time: new Date(Date.UTC(2025, 7, 21, 12, 0, 0)), 
+      //   title: "End of Comeback",
+      //   msg: "The event has ended!"
+      // }
     ];
           
         const getUITemplate = ({ title, days, hours, minutes, seconds, msg, isExpired }) => {
@@ -144,7 +145,7 @@
               <div class="clock-container">
                 <div> 
                   <span class="eventDetails">
-                    <h1><b>${title} 2024 </b></h1>
+                    <h1><b>${title} 2025 </b></h1>
                   </span>
                 </div>
                 <h1>Countdown Clock</h1>
@@ -192,7 +193,7 @@
           deadlinesWithInfo.forEach((deadline) => {
             let timeInfo = getRemainingTime(deadline.time);
 
-            if (timeInfo.isExpired && deadline.title === "End of Sekai CTF") {
+            if (timeInfo.isExpired && deadline.title === "End") {
               timeInfo.msg = deadline.msg;
             }
 
