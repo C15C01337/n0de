@@ -1,85 +1,250 @@
 <!DOCTYPE html>
 <html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Landing Page With Light/Dark Mode</title>
-    <link rel="stylesheet" href="style.css" />
-  </head>
-  <body>
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Portfolio Landing Page</title>
+  <link rel="stylesheet" href="style.css" />
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Fira+Mono:wght@400;700&display=swap" rel="stylesheet">
+</head>
+<body>
+  <div class="sidebar">
+    <div class="sidebar-line"></div>
+    <div class="sidebar-icons">
+      <a href="#" title="GitHub"><img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/github/github-original.svg" alt="GitHub" /></a>
+      <a href="#" title="TryHackMe"><img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/linux/linux-original.svg" alt="TryHackMe" /></a>
+      <a href="#" title="Hack The Box"><img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/bash/bash-original.svg" alt="Hack The Box" /></a>
+    </div>
+  </div>
+  <div class="main-content">
+    <header>
+      <nav class="navbar">
+        <div class="logo">
+
+        </div>
+        <ul class="nav-links">
+          <li><a href="#" class="active">#home</a></li>
+          <li><a href="#">#works</a></li>
+          <li><a href="#">#about-me</a></li>
+          <li><a href="#">#contacts</a></li>
+        </ul>
+        <div class="lang-select">
+          EN <span class="arrow">&#9662;</span>
+        </div>
+      </nav>
+    </header>
     <main>
-      <div class="big-wrapper light">
-        <img src="./img/shape.png" alt="" class="shape" />
-
-        <header>
-          <div class="container">
-            <div class="logo">
-              <img src="./img/logo.png" alt="Logo" />
-              <h3>n0de in a new branch</h3>
-            </div>
-
-            <div class="links">
-              <ul>
-                <li><a href="#">Project</a></li>
-                <li><a href="#">About</a></li>
-                <li><a href="#">Testimonials</a></li>
-                <li><a href="timer" class="btn">CTF Timer</a></li>
-              </ul>
-            </div>
-
-            <div class="overlay"></div>
-
-            <div class="hamburger-menu">
-              <div class="bar"></div>
+      <section class="hero">
+        <div class="hero-inner">
+          <div class="hero-left">
+            <h1>
+              <span class="wave">👋</span> Hi, it's me <span class="highlight">Cisco</span>
+            </h1>
+            <h2 class="hero-title">
+              <span class="highlight">CTF Player</span> with <span class="highlight">Hack@Sec</span>
+            </h2>
+            <p class="subtitle">Passionate about <span class="highlight">Cybersecurity</span> & <span class="highlight">Capture The Flag</span> competitions.<br>
+              I specialize in web security, cryptography, and real-world attack simulations.<br>
+              <span class="hero-keywords">#CTF #Cybersecurity #WebSec #Crypto #RedTeam</span>
+            </p>
+            <a href="#" class="contact-btn">Contact me!!</a>
+            <div class="hero-social">
+              <a href="#" title="GitHub"><img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/github/github-original.svg" alt="GitHub" /></a>
+              <a href="#" title="TryHackMe"><img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/linux/linux-original.svg" alt="TryHackMe" /></a>
+              <a href="#" title="Hack The Box"><img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/bash/bash-original.svg" alt="Hack The Box" /></a>
             </div>
           </div>
-        </header>
-
-        <div class="showcase-area">
-          <div class="container">
-            <div class="left">
-          <div class="big-title">
-            <h1>Welcome to Node,</h1>
-            <h1>Your Gateway to Web Security & Cryptography.</h1>
+          <div class="hero-right">
+            <div class="decorative-shapes">
+              <div class="shape-rect"></div>
+              <div class="shape-rect small"></div>
+            </div>
+            <img src="image.jpg" alt="Person" class="person-img" />
+            <div class="badge">
+              <span class="badge-dot"></span> Currently working on <b>CTF Writeups</b>
+            </div>
+            <div class="dots"></div>
           </div>
-          <p class="text">
-           Node: Building Trust, One Block at a Time <br> In an age where information is power, protecting your data is critical. We equip you with the knowledge to secure your digital world. 
-          </p>
-          <p class="text">
-            Learn how  to safeguard your applications with cutting-edge encryption techniques, and dive deep into the world of secure Web and cryptography, where secrets are kept safe and vulnerabilities are exposed before they become threats.
-          </p>
-
-              <div class="cta">
-                <a href="#" class="btn">Get started</a>
+        </div>
+      </section>
+      <section class="quote-section">
+        <div class="quote-box">
+          <span class="quote-mark">“</span>
+          <span class="quote-text">I have sleep time but not sleep timing.</span>
+          <span class="quote-mark end">”</span>
+          <div class="quote-author">- Cisco</div>
+        </div>
+      </section>
+      <section class="skills-section" id="skills">
+        <h2 class="section-title"><span class="highlight">#skills</span></h2>
+        <div class="skills-grid">
+          <div class="skill-card">
+            <div class="skill-title">Languages</div>
+            <div class="skill-list">Python, Bash<br>JavaScript, Golang<br>Any with ChatGPT</div>
+          </div>
+          <div class="skill-card">
+            <div class="skill-title">Offensive Security</div>
+            <div class="skill-list">Web Exploitation<br>Cryptography<br>Network Pentesting<br>Privilege Escalation</div>
+          </div>
+          <div class="skill-card">
+            <div class="skill-title">Tools</div>
+            <div class="skill-list">Burp Suite, Nmap<br>Metasploit, Ghidra<br>Wireshark, Kali Linux<br>Nuclei</div>
+          </div>
+          <div class="skill-card">
+            <div class="skill-title">Platforms</div>
+            <div class="skill-list">Hack The Box<br>Cryptohack<br>CTFtime.org</div>
+          </div>
+          <div class="skill-card">
+            <div class="skill-title">Other</div>
+            <div class="skill-list">Cryptography<br>Forensics<br>OSINT<br>CTF Creator/Organizer</div>
+          </div>
+        </div>
+      </section>
+      <section class="fun-facts-section" id="fun-facts">
+        <h2 class="section-title"><span class="highlight">#my-fun-facts</span></h2>
+        <div class="fun-facts-cards">
+          <div class="fun-fact-card">
+            <span class="fun-fact-icon">🔐</span>
+            <span class="fun-fact-text">I love breaking web apps and solving crypto CTFs</span>
+          </div>
+          <div class="fun-fact-card">
+            <span class="fun-fact-icon">🌍</span>
+            <span class="fun-fact-text">Competed in International CTFs representing Nepal</span>
+          </div>
+          <div class="fun-fact-card">
+            <span class="fun-fact-icon">🕵️‍♂️</span>
+            <span class="fun-fact-text">Play Chess and Table Tennis</span>
+          </div>
+          <div class="fun-fact-card">
+            <span class="fun-fact-icon">🏆</span>
+            <span class="fun-fact-text">Last Seen Anime: <b>Solo Leveling</b></span>
+          </div>
+          <div class="fun-fact-card">
+            <span class="fun-fact-icon">💻</span>
+            <span class="fun-fact-text">Automate recon and exploit scripts in Python</span>
+          </div>
+          <div class="fun-fact-card">
+            <span class="fun-fact-icon">🎯</span>
+            <span class="fun-fact-text">Lazy for doing bugbounty</span>
+          </div>
+          <div class="fun-fact-card">
+            <span class="fun-fact-icon">🎮</span>
+            <span class="fun-fact-text">Organized Live CTFs event and make challenges for CTFs</span>
+          </div>
+        </div>
+        <div class="fun-facts-decor">
+          <div class="dots"></div>
+          <div class="decorative-shapes">
+            <div class="shape-rect"></div>
+            <div class="shape-rect small"></div>
+          </div>
+          <div class="dots right"></div>
+        </div>
+      </section>
+      <section class="projects-section" id="projects">
+        <div class="projects-header">
+          <h2 class="section-title"><span class="highlight">#projects</span> <span class="accent-line"></span></h2>
+          <a href="#" class="projects-viewall">View all ⟶⟶⟶</a>
+        </div>
+        <div class="projects-grid">
+          <div class="project-card">
+            <div class="project-image" style="background: linear-gradient(90deg, #1a1a1a 60%, #ff6600 100%); display: flex; align-items: center; justify-content: center;">
+              <img src="https://img.icons8.com/fluency/96/lock-2.png" alt="VulnHub" style="width: 90px; height: 70px; object-fit: contain; filter: brightness(1.2);">
+              <div class="project-badges">
+                <span class="project-badge">CTF</span>
+                <span class="project-badge">Web</span>
+                <span class="project-badge">Crypto</span>
               </div>
             </div>
-
-            <div class="right">
-              <img src="./img/person.png" alt="Person Image" class="person" />
+            <div class="project-stack">Python Bash BurpSuite</div>
+            <div class="project-info">
+              <div class="project-title">CTF Writeups</div>
+              <div class="project-desc">Walkthroughs for CTF machines</div>
+            </div>
+            <div class="project-actions">
+              <a href="#" class="project-btn live">Live ⟷</a>
+              <a href="#" class="project-btn cached">Cached &gt;</a>
+            </div>
+          </div>
+          <div class="project-card">
+            <div class="project-image" style="background: #181f1a; display: flex; align-items: center; justify-content: center;">
+              <img src="https://img.icons8.com/color/96/hacker.png" alt="CTF Toolkit" style="width: 70px; height: 70px;">
+            </div>
+            <div class="project-stack">Python Bash Sagemath<br>Auto Solver AI</div>
+            <div class="project-info">
+              <div class="project-title">CTF Toolkit</div>
+              <div class="project-desc">Scripts and tools for CTF challenges</div>
+            </div>
+            <div class="project-actions">
+              <a href="#" class="project-btn live">GitHub ⟷</a>
+            </div>
+          </div>
+          <div class="project-card">
+            <div class="project-image" style="background: #4b2aad; display: flex; align-items: center; justify-content: center;">
+              <img src="https://img.icons8.com/color/96/anonymous-mask.png" alt="HackTheBox" style="width: 70px; height: 70px;">
+            </div>
+            <div class="project-stack">Linux Bash Python</div>
+            <div class="project-info">
+              <div class="project-title">CTFtime Progress</div>
+              <div class="project-desc">Team Ranking and Event Played</div>
+            </div>
+            <div class="project-actions">
+              <a href="#" class="project-btn live">Read ⟷</a>
             </div>
           </div>
         </div>
-
-        <div class="bottom-area">
-          <div class="container">
-            <button class="toggle-btn">
-              <i class="far fa-moon"></i>
-              <i class="far fa-sun"></i>
-            </button>
+      </section>
+      <section class="contacts-section" id="contacts">
+        <h2 class="section-title contacts-title"><span class="highlight">#contacts</span> <span class="accent-line"></span></h2>
+        <div class="contacts-content">
+          <div class="contacts-dots">
+            <div class="dot-row">•  •  •</div>
+            <div class="dot-row">•  •</div>
+            <div class="dot-row">•</div>
+            <div class="dot-row">•  •</div>
+            <div class="dot-row">•  •  •</div>
+          </div>
+          <div class="contacts-message">
+            I’m interested in freelance opportunities. However,<br>
+            if you have other request or question, don’t<br>
+            hesitate to contact me
+          </div>
+          <div class="contacts-box">
+            <div class="contacts-box-title">Message me here</div>
+            <div class="contacts-box-item">
+              <span class="contacts-icon" style="font-size: 1.2em; vertical-align: middle;">
+                <!-- Using Discord emoji as logo -->
+                <span role="img" aria-label="Discord">💬</span>
+              </span>
+              c15c01337 (Discord)
+            </div>
+            <div class="contacts-box-item"><span class="contacts-icon">&#9993;</span> bishal@hackasec.team</div>
+          </div>
+        </div>
+      </section>
+    </main>
+    <footer class="footer">
+      <div class="footer-content">
+        <div class="footer-left">
+          <div class="footer-logo"><span class="logo-icon"></span>Contact Hack@Sec <span class="footer-email">ctf@hackasec.team</span></div>
+          <div class="footer-desc">#1 ranked CTF Team from Nepal </div>
+        </div>
+        <div class="footer-media">
+          <div class="footer-media-title">Media</div>
+          <div class="footer-media-icons">
+            <a href="https://github.com/c15c01337" target="_blank" rel="noopener"><img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/github/github-original.svg" alt="GitHub" /></a>
+            <a href="https://x.com/c15c01337" target="_blank" rel="noopener"><img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/twitter/twitter-original.svg" alt="Twitter" /></a>
+            <a href="https://www.linkedin.com/in/c15c01337/" target="_blank" rel="noopener"><img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/linkedin/linkedin-original.svg" alt="LinkedIn" /></a>
           </div>
         </div>
       </div>
-    </main>
-
-    <!-- JavaScript Files -->
-
-    <script src="https://kit.fontawesome.com/a81368914c.js"></script>
-    <script src="./app.js"></script>
-<script>
-  const url = new URLSearchParams(location.search).get("r");
-  if (url) location.href = url;
-</script>
-
-  </body>
+      <div class="footer-copyright">
+        © Copyright 2025. Made by Cisco and Cursor AI.
+      </div>
+    </footer>
+  </div>
+  <script src="app.js"></script>
+</body>
 </html>
