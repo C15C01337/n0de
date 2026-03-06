@@ -1,0 +1,267 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Nepal Election Live Dashboard</title>
+
+<style>
+
+body{
+font-family:system-ui;
+background:#eef2f7;
+margin:0;
+padding:30px;
+}
+
+h1{
+text-align:center;
+margin-bottom:10px;
+}
+
+.status{
+text-align:center;
+color:#666;
+margin-bottom:30px;
+}
+
+#dashboard{
+display:flex;
+flex-wrap:wrap;
+gap:25px;
+justify-content:center;
+}
+
+.card{
+background:white;
+width:360px;
+border-radius:12px;
+box-shadow:0 8px 25px rgba(0,0,0,0.08);
+padding:18px;
+transition:0.3s;
+}
+
+.card:hover{
+transform:translateY(-3px);
+box-shadow:0 12px 30px rgba(0,0,0,0.15);
+}
+
+.card h3{
+margin-top:0;
+color:#1a73e8;
+}
+
+.list{
+max-height:260px;
+overflow-y:auto;
+margin-top:10px;
+}
+
+.row{
+display:flex;
+justify-content:space-between;
+align-items:center;
+padding:8px 0;
+border-bottom:1px solid #eee;
+}
+
+.row:last-child{
+border:none;
+}
+
+.rank{
+font-weight:bold;
+width:25px;
+color:#888;
+}
+
+.name{
+font-weight:600;
+}
+
+.party{
+font-size:12px;
+color:#777;
+}
+
+.vote{
+font-weight:bold;
+background:#ecfdf5;
+color:#059669;
+padding:4px 10px;
+border-radius:6px;
+}
+
+.winner{
+background:#fff7ed;
+}
+
+</style>
+</head>
+
+<body>
+
+<h1>Nepal Election Live Dashboard</h1>
+<div class="status" id="last-updated">Loading...</div>
+
+<div id="dashboard"></div>
+
+<script>
+
+const urls = [
+
+"https://election.ekantipur.com/pradesh-5/district-rukumeast/constituency-1?lng=eng",
+"https://election.ekantipur.com/pradesh-1/district-jhapa/constituency-5?lng=eng",
+"https://election.ekantipur.com/pradesh-1/district-sunsari/constituency-1?lng=eng",
+"https://election.ekantipur.com/pradesh-5/district-rupandehi/constituency-2?lng=eng",
+"https://election.ekantipur.com/pradesh-3/district-chitwan/constituency-2?lng=eng"
+
+];
+
+function getTitle(url){
+
+const parts=url.split("/");
+const district=parts[parts.length-2].replace("district-","");
+const constituency=parts[parts.length-1].split("?")[0].replace("constituency-","");
+
+return district+" Constituency "+constituency;
+
+}
+
+function cleanVotes(text){
+
+if(!text) return "0";
+
+const match=text.match(/\d{1,3}(,\d{3})*/);
+
+return match ? match[0] : "0";
+
+}
+
+async function fetchHTML(url){
+
+const proxy="https://api.codetabs.com/v1/proxy?quest="+encodeURIComponent(url);
+
+const res=await fetch(proxy);
+
+return await res.text();
+
+}
+
+function parse(html){
+
+const parser=new DOMParser();
+const doc=parser.parseFromString(html,"text/html");
+
+const rows=doc.querySelectorAll("tr");
+
+const results=[];
+
+rows.forEach(row=>{
+
+const cells=row.querySelectorAll("td");
+
+if(cells.length>=3){
+
+const name=cells[0].innerText.trim();
+const party=cells[1].innerText.trim();
+const votes=cleanVotes(cells[2].innerText);
+
+results.push({name,party,votes});
+
+}
+
+});
+
+return results;
+
+}
+
+function renderCard(id,title){
+
+const dashboard=document.getElementById("dashboard");
+
+const card=document.createElement("div");
+card.className="card";
+
+card.innerHTML=`
+<h3>${title}</h3>
+<div class="list" id="list-${id}">Loading...</div>
+`;
+
+dashboard.appendChild(card);
+
+}
+
+function updateTable(id,candidates){
+
+const list=document.getElementById("list-"+id);
+
+let html="";
+
+candidates.forEach((c,i)=>{
+
+const winner=i===0?"row winner":"row";
+
+html+=`
+<div class="${winner}">
+
+<div style="display:flex;gap:8px;align-items:center">
+
+<div class="rank">#${i+1}</div>
+
+<div>
+<div class="name">${c.name}</div>
+<div class="party">${c.party}</div>
+</div>
+
+</div>
+
+<div class="vote">${c.votes}</div>
+
+</div>
+`;
+
+});
+
+list.innerHTML=html;
+
+}
+
+async function update(){
+
+for(let i=0;i<urls.length;i++){
+
+const html=await fetchHTML(urls[i]);
+
+const candidates=parse(html);
+
+updateTable(i,candidates);
+
+}
+
+const now=new Date();
+
+document.getElementById("last-updated").innerText="Last Updated: "+now.toLocaleTimeString();
+
+}
+
+function init(){
+
+urls.forEach((url,i)=>{
+
+renderCard(i,getTitle(url));
+
+});
+
+update();
+
+setInterval(update,20000);
+
+}
+
+init();
+
+</script>
+
+</body>
+</html>
