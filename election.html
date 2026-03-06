@@ -1,12 +1,12 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-<meta charset="UTF-8">
-<title>Nepal Election Live Dashboard</title>
-
-<style>
-
-body{
+  <head>
+    <meta charset="UTF-8" />
+    <title>
+      Nepal Election Live Dashboard
+    </title>
+    <style>
+      body{
 font-family:system-ui;
 background:#eef2f7;
 margin:0;
@@ -94,26 +94,26 @@ border-radius:6px;
 .winner{
 background:#fff7ed;
 }
-
-</style>
-</head>
-
-<body>
-
-<h1>Nepal Election Live Dashboard</h1>
-<div class="status" id="last-updated">Loading...</div>
-
-<div id="dashboard"></div>
-
-<script>
-
-const urls = [
+    </style>
+  </head>
+  <body>
+    <h1>
+      Nepal Election Live Dashboard
+    </h1>
+    <div class="status" id="last-updated">
+      Loading...
+    </div>
+    <div id="dashboard">
+    </div>
+    <script>
+      const urls = [
 
 "https://election.ekantipur.com/pradesh-5/district-rukumeast/constituency-1?lng=eng",
 "https://election.ekantipur.com/pradesh-1/district-jhapa/constituency-5?lng=eng",
 "https://election.ekantipur.com/pradesh-1/district-sunsari/constituency-1?lng=eng",
 "https://election.ekantipur.com/pradesh-5/district-rupandehi/constituency-2?lng=eng",
-"https://election.ekantipur.com/pradesh-3/district-chitwan/constituency-2?lng=eng"
+"https://election.ekantipur.com/pradesh-3/district-chitwan/constituency-2?lng=eng",
+"https://election.ekantipur.com/pradesh-5/district-arghakhanchi/constituency-1?lng=eng"
 
 ];
 
@@ -260,8 +260,6 @@ setInterval(update,20000);
 }
 
 init();
-
-</script>
-
-</body>
+    </script>
+  </body>
 </html>
