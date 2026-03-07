@@ -77,6 +77,9 @@ color:#888;
 
 .name{
 font-weight:600;
+display: flex;
+align-items: center;
+gap: 6px;
 }
 
 .party{
@@ -94,6 +97,18 @@ border-radius:6px;
 
 .winner{
 background:#fff7ed;
+}
+
+/* New CSS for the Elected Badge */
+.elected-badge {
+background: #10b981;
+color: white;
+font-size: 10px;
+padding: 2px 6px;
+border-radius: 4px;
+font-weight: bold;
+text-transform: uppercase;
+letter-spacing: 0.5px;
 }
     </style>
   </head>
@@ -167,9 +182,13 @@ if(cells.length>=3){
 
 const name=cells[0].innerText.trim();
 const party=cells[1].innerText.trim();
-const votes=cleanVotes(cells[2].innerText);
+const rawVotes=cells[2].innerText;
+const votes=cleanVotes(rawVotes);
 
-results.push({name,party,votes});
+// Check if the word "Elected" is anywhere in the row's text
+const isElected=row.innerText.includes("Elected");
+
+results.push({name,party,votes,isElected});
 
 }
 
@@ -204,6 +223,7 @@ let html="";
 candidates.forEach((c,i)=>{
 
 const winner=i===0?"row winner":"row";
+const electedTag=c.isElected?`<span class="elected-badge">Elected</span>`:"";
 
 html+=`
 <div class="${winner}">
@@ -213,7 +233,7 @@ html+=`
 <div class="rank">#${i+1}</div>
 
 <div>
-<div class="name">${c.name}</div>
+<div class="name">${c.name} ${electedTag}</div>
 <div class="party">${c.party}</div>
 </div>
 
