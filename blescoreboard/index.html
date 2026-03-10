@@ -569,6 +569,9 @@ const CORS_PROXIES = [
   'https://corsproxy.io/?url=',
 ];
 
+// Fallback data when CORS proxies fail (update periodically from play.picoctf.org)
+const FALLBACK_TEAMS = [{"id":19336,"event":{"id":79,"name":"picoCTF 2026"},"name":"Team X","team_score":7700,"members":[{"participant_id":115427,"username":"z3ro00","team_leader":true,"team_score_contribution":1200},{"participant_id":115432,"username":"LiGhTMaHaju","team_leader":false,"team_score_contribution":3250},{"participant_id":115440,"username":"z0w0ra","team_leader":false,"team_score_contribution":1350},{"participant_id":117313,"username":"ThatGuysBroke","team_leader":false,"team_score_contribution":1900},{"participant_id":117492,"username":"rejected22","team_leader":false,"team_score_contribution":0}]},{"id":19570,"event":{"id":79,"name":"picoCTF 2026"},"name":"TEAM Z","team_score":7600,"members":[{"participant_id":115942,"username":"iconic-whisper","team_leader":true,"team_score_contribution":5450},{"participant_id":117519,"username":"Kaiser7","team_leader":false,"team_score_contribution":50},{"participant_id":117575,"username":"spydomain","team_leader":false,"team_score_contribution":2100}]},{"id":19329,"event":{"id":79,"name":"picoCTF 2026"},"name":"Team Y","team_score":4600,"members":[{"participant_id":108541,"username":"Nerdmonk-00","team_leader":true,"team_score_contribution":850},{"participant_id":115345,"username":"pwnspirit","team_leader":false,"team_score_contribution":2100},{"participant_id":115410,"username":"the008killer","team_leader":false,"team_score_contribution":750},{"participant_id":115416,"username":"redbeans86","team_leader":false,"team_score_contribution":100},{"participant_id":115642,"username":"Dduck","team_leader":false,"team_score_contribution":800}]},{"id":19338,"event":{"id":79,"name":"picoCTF 2026"},"name":"Team G","team_score":3050,"members":[{"participant_id":115433,"username":"Grish","team_leader":true,"team_score_contribution":0},{"participant_id":115443,"username":"zonsalon","team_leader":false,"team_score_contribution":1900},{"participant_id":115471,"username":"hyaaaa","team_leader":false,"team_score_contribution":350},{"participant_id":115549,"username":"sirynshell","team_leader":false,"team_score_contribution":800}]}];
+
 const elements = {
   leaderboard: document.getElementById('leaderboard'),
   teamsDetail: document.getElementById('teamsDetail'),
@@ -680,36 +683,35 @@ async function loadLeaderboard() {
   elements.loadingOverlay?.classList.remove('hidden');
   elements.refreshBtn?.classList.add('loading');
 
+  let teams = [];
+  let usedFallback = false;
+
   try {
-    const teams = await fetchAllTeams();
+    teams = await fetchAllTeams();
+    if (teams.length === 0) throw new Error('No teams loaded');
+  } catch (err) {
+    console.warn('Using fallback data:', err.message);
+    teams = FALLBACK_TEAMS;
+    usedFallback = true;
+  }
 
-    if (teams.length === 0) {
-      elements.leaderboard.innerHTML = `
-        <div class="error-message" style="grid-column: 1/-1;">
-          Failed to load team data. Check console for details.
-        </div>
-      `;
-      return;
-    }
-
+  if (teams.length > 0) {
     if (teams[0]?.event?.name) {
       elements.eventName.textContent = teams[0].event.name;
     }
-
     renderLeaderboard(teams);
     renderTeamDetails(teams);
-    elements.lastUpdate.textContent = new Date().toLocaleString();
-  } catch (err) {
-    console.error('Leaderboard load error:', err);
+    elements.lastUpdate.textContent = new Date().toLocaleString() + (usedFallback ? ' (cached)' : '');
+  } else {
     elements.leaderboard.innerHTML = `
       <div class="error-message" style="grid-column: 1/-1;">
-        Error loading leaderboard: ${escapeHtml(err.message)}
+        Failed to load team data.
       </div>
     `;
-  } finally {
-    elements.loadingOverlay?.classList.add('hidden');
-    elements.refreshBtn?.classList.remove('loading');
   }
+
+  elements.loadingOverlay?.classList.add('hidden');
+  elements.refreshBtn?.classList.remove('loading');
 }
 
 elements.refreshBtn?.addEventListener('click', loadLeaderboard);
