@@ -553,7 +553,7 @@ body {
     <p class="last-update">Last updated: <span id="lastUpdate">—</span></p>
   </footer>
 
-  <div class="loading-overlay" id="loadingOverlay">
+  <div class="loading-overlay hidden" id="loadingOverlay">
     <div class="loader">
       <div class="loader-ring"></div>
       <span class="loader-text">FETCHING SCORES...</span>
@@ -564,13 +564,16 @@ body {
 const TEAM_IDS = [19336, 19570, 19329, 19338];
 const API_BASE = 'https://play.picoctf.org/api/teams';
 const STORAGE_KEY = 'picoctf_leaderboard_teams';
+const STORAGE_TIME_KEY = 'picoctf_leaderboard_updated';
+
+
 const CORS_PROXIES = [
   'https://api.cors.lol/?url=',
   'https://api.allorigins.win/raw?url=',
   'https://corsproxy.io/?url=',
 ];
 
-// Fallback data when CORS proxies fail (update periodically from play.picoctf.org)
+// Fallback when all proxies fail + localStorage empty (update periodically)
 const FALLBACK_TEAMS = [{"id":19336,"event":{"id":79,"name":"picoCTF 2026"},"name":"Team X","team_score":7700,"members":[{"participant_id":115427,"username":"z3ro00","team_leader":true,"team_score_contribution":1200},{"participant_id":115432,"username":"LiGhTMaHaju","team_leader":false,"team_score_contribution":3250},{"participant_id":115440,"username":"z0w0ra","team_leader":false,"team_score_contribution":1350},{"participant_id":117313,"username":"ThatGuysBroke","team_leader":false,"team_score_contribution":1900},{"participant_id":117492,"username":"rejected22","team_leader":false,"team_score_contribution":0}]},{"id":19570,"event":{"id":79,"name":"picoCTF 2026"},"name":"TEAM Z","team_score":7600,"members":[{"participant_id":115942,"username":"iconic-whisper","team_leader":true,"team_score_contribution":5450},{"participant_id":117519,"username":"Kaiser7","team_leader":false,"team_score_contribution":50},{"participant_id":117575,"username":"spydomain","team_leader":false,"team_score_contribution":2100}]},{"id":19329,"event":{"id":79,"name":"picoCTF 2026"},"name":"Team Y","team_score":4600,"members":[{"participant_id":108541,"username":"Nerdmonk-00","team_leader":true,"team_score_contribution":850},{"participant_id":115345,"username":"pwnspirit","team_leader":false,"team_score_contribution":2100},{"participant_id":115410,"username":"the008killer","team_leader":false,"team_score_contribution":750},{"participant_id":115416,"username":"redbeans86","team_leader":false,"team_score_contribution":100},{"participant_id":115642,"username":"Dduck","team_leader":false,"team_score_contribution":800}]},{"id":19338,"event":{"id":79,"name":"picoCTF 2026"},"name":"Team G","team_score":3050,"members":[{"participant_id":115433,"username":"Grish","team_leader":true,"team_score_contribution":0},{"participant_id":115443,"username":"zonsalon","team_leader":false,"team_score_contribution":1900},{"participant_id":115471,"username":"hyaaaa","team_leader":false,"team_score_contribution":350},{"participant_id":115549,"username":"sirynshell","team_leader":false,"team_score_contribution":800}]}];
 
 function getFromStorage() {
@@ -587,9 +590,28 @@ function getFromStorage() {
 function saveToStorage(teams) {
   try {
     localStorage.setItem(STORAGE_KEY, JSON.stringify(teams));
+    localStorage.setItem(STORAGE_TIME_KEY, new Date().toISOString());
   } catch (e) {
     console.warn('localStorage save failed:', e);
   }
+}
+
+function getStoredUpdateTime() {
+  try {
+    return localStorage.getItem(STORAGE_TIME_KEY) || null;
+  } catch (e) {
+    return null;
+  }
+}
+
+function teamsSignature(teams) {
+  const sorted = [...teams].sort((a, b) => (b.team_score || 0) - (a.team_score || 0));
+  return sorted.map(t => `${t.id}:${t.team_score}:${(t.members||[]).map(m=>m.team_score_contribution).join(',')}`).join('|');
+}
+
+function teamsChanged(prev, next) {
+  if (!prev || !next || prev.length !== next.length) return true;
+  return teamsSignature(prev) !== teamsSignature(next);
 }
 
 const elements = {
@@ -699,21 +721,45 @@ function escapeHtml(str) {
   return div.innerHTML;
 }
 
+function displayTeams(teams, sourceLabel) {
+  if (!teams || teams.length === 0) return;
+  if (teams[0]?.event?.name) {
+    elements.eventName.textContent = teams[0].event.name;
+  }
+  renderLeaderboard(teams);
+  renderTeamDetails(teams);
+  const time = getStoredUpdateTime();
+  elements.lastUpdate.textContent = (time ? new Date(time).toLocaleString() : new Date().toLocaleString()) + sourceLabel;
+}
+
 async function loadLeaderboard(silent = false) {
-  if (!silent) {
+  const showOverlay = !silent;
+
+  if (showOverlay) {
     elements.loadingOverlay?.classList.remove('hidden');
     elements.refreshBtn?.classList.add('loading');
   }
 
+  const cached = getFromStorage() || FALLBACK_TEAMS;
   let teams = [];
   let source = '';
 
   try {
     teams = await fetchAllTeams();
-    if (teams.length > 0) {
+    if (teams.length >= TEAM_IDS.length) {
+      const changed = teamsChanged(cached, teams);
       saveToStorage(teams);
       source = '';
-    } else throw new Error('No teams loaded');
+      if (!changed && !showOverlay) {
+        elements.lastUpdate.textContent = new Date().toLocaleString() + ' (no change)';
+        return;
+      }
+    } else if (teams.length > 0) {
+      teams = cached;
+      source = ' (partial fetch, kept cache)';
+    } else {
+      throw new Error('No teams loaded');
+    }
   } catch (err) {
     teams = getFromStorage();
     if (teams && teams.length > 0) {
@@ -726,12 +772,7 @@ async function loadLeaderboard(silent = false) {
   }
 
   if (teams.length > 0) {
-    if (teams[0]?.event?.name) {
-      elements.eventName.textContent = teams[0].event.name;
-    }
-    renderLeaderboard(teams);
-    renderTeamDetails(teams);
-    elements.lastUpdate.textContent = new Date().toLocaleString() + source;
+    displayTeams(teams, source);
   } else {
     elements.leaderboard.innerHTML = `
       <div class="error-message" style="grid-column: 1/-1;">
@@ -740,16 +781,24 @@ async function loadLeaderboard(silent = false) {
     `;
   }
 
-  if (!silent) {
+  if (showOverlay) {
     elements.loadingOverlay?.classList.add('hidden');
     elements.refreshBtn?.classList.remove('loading');
   }
 }
 
-elements.refreshBtn?.addEventListener('click', () => loadLeaderboard(false));
-loadLeaderboard(false);
+function init() {
+  const cached = getFromStorage() || FALLBACK_TEAMS;
+  if (cached.length > 0) {
+    displayTeams(cached, getFromStorage() ? ' (from cache)' : ' (cached)');
+    elements.loadingOverlay?.classList.add('hidden');
+  }
+  loadLeaderboard(true);
+}
 
-// Auto-update every 1 minute (silent - no loading overlay)
+elements.refreshBtn?.addEventListener('click', () => loadLeaderboard(false));
+init();
+
 setInterval(() => loadLeaderboard(true), 60000);
   </script>
 </body>
