@@ -563,7 +563,11 @@ body {
   <script>
 const TEAM_IDS = [19336, 19570, 19329, 19338];
 const API_BASE = 'https://play.picoctf.org/api/teams';
-const CORS_PROXY = 'https://corsproxy.io/?url=';
+const CORS_PROXIES = [
+  'https://api.cors.lol/?url=',
+  'https://api.allorigins.win/raw?url=',
+  'https://corsproxy.io/?url=',
+];
 
 const elements = {
   leaderboard: document.getElementById('leaderboard'),
@@ -575,10 +579,19 @@ const elements = {
 };
 
 async function fetchTeamData(teamId) {
-  const url = CORS_PROXY + encodeURIComponent(`${API_BASE}/${teamId}`);
-  const res = await fetch(url);
-  if (!res.ok) throw new Error(`HTTP ${res.status}`);
-  return await res.json();
+  const targetUrl = `${API_BASE}/${teamId}`;
+  let lastErr;
+  for (const proxy of CORS_PROXIES) {
+    try {
+      const url = proxy + encodeURIComponent(targetUrl);
+      const res = await fetch(url);
+      if (!res.ok) throw new Error(`HTTP ${res.status}`);
+      return await res.json();
+    } catch (e) {
+      lastErr = e;
+    }
+  }
+  throw lastErr;
 }
 
 async function fetchAllTeams() {
