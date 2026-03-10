@@ -563,6 +563,7 @@ body {
   <script>
 const TEAM_IDS = [19336, 19570, 19329, 19338];
 const API_BASE = 'https://play.picoctf.org/api/teams';
+const STORAGE_KEY = 'picoctf_leaderboard_teams';
 const CORS_PROXIES = [
   'https://api.cors.lol/?url=',
   'https://api.allorigins.win/raw?url=',
@@ -571,6 +572,25 @@ const CORS_PROXIES = [
 
 // Fallback data when CORS proxies fail (update periodically from play.picoctf.org)
 const FALLBACK_TEAMS = [{"id":19336,"event":{"id":79,"name":"picoCTF 2026"},"name":"Team X","team_score":7700,"members":[{"participant_id":115427,"username":"z3ro00","team_leader":true,"team_score_contribution":1200},{"participant_id":115432,"username":"LiGhTMaHaju","team_leader":false,"team_score_contribution":3250},{"participant_id":115440,"username":"z0w0ra","team_leader":false,"team_score_contribution":1350},{"participant_id":117313,"username":"ThatGuysBroke","team_leader":false,"team_score_contribution":1900},{"participant_id":117492,"username":"rejected22","team_leader":false,"team_score_contribution":0}]},{"id":19570,"event":{"id":79,"name":"picoCTF 2026"},"name":"TEAM Z","team_score":7600,"members":[{"participant_id":115942,"username":"iconic-whisper","team_leader":true,"team_score_contribution":5450},{"participant_id":117519,"username":"Kaiser7","team_leader":false,"team_score_contribution":50},{"participant_id":117575,"username":"spydomain","team_leader":false,"team_score_contribution":2100}]},{"id":19329,"event":{"id":79,"name":"picoCTF 2026"},"name":"Team Y","team_score":4600,"members":[{"participant_id":108541,"username":"Nerdmonk-00","team_leader":true,"team_score_contribution":850},{"participant_id":115345,"username":"pwnspirit","team_leader":false,"team_score_contribution":2100},{"participant_id":115410,"username":"the008killer","team_leader":false,"team_score_contribution":750},{"participant_id":115416,"username":"redbeans86","team_leader":false,"team_score_contribution":100},{"participant_id":115642,"username":"Dduck","team_leader":false,"team_score_contribution":800}]},{"id":19338,"event":{"id":79,"name":"picoCTF 2026"},"name":"Team G","team_score":3050,"members":[{"participant_id":115433,"username":"Grish","team_leader":true,"team_score_contribution":0},{"participant_id":115443,"username":"zonsalon","team_leader":false,"team_score_contribution":1900},{"participant_id":115471,"username":"hyaaaa","team_leader":false,"team_score_contribution":350},{"participant_id":115549,"username":"sirynshell","team_leader":false,"team_score_contribution":800}]}];
+
+function getFromStorage() {
+  try {
+    const raw = localStorage.getItem(STORAGE_KEY);
+    if (!raw) return null;
+    const teams = JSON.parse(raw);
+    return Array.isArray(teams) && teams.length > 0 ? teams : null;
+  } catch (e) {
+    return null;
+  }
+}
+
+function saveToStorage(teams) {
+  try {
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(teams));
+  } catch (e) {
+    console.warn('localStorage save failed:', e);
+  }
+}
 
 const elements = {
   leaderboard: document.getElementById('leaderboard'),
@@ -679,20 +699,30 @@ function escapeHtml(str) {
   return div.innerHTML;
 }
 
-async function loadLeaderboard() {
-  elements.loadingOverlay?.classList.remove('hidden');
-  elements.refreshBtn?.classList.add('loading');
+async function loadLeaderboard(silent = false) {
+  if (!silent) {
+    elements.loadingOverlay?.classList.remove('hidden');
+    elements.refreshBtn?.classList.add('loading');
+  }
 
   let teams = [];
-  let usedFallback = false;
+  let source = '';
 
   try {
     teams = await fetchAllTeams();
-    if (teams.length === 0) throw new Error('No teams loaded');
+    if (teams.length > 0) {
+      saveToStorage(teams);
+      source = '';
+    } else throw new Error('No teams loaded');
   } catch (err) {
-    console.warn('Using fallback data:', err.message);
-    teams = FALLBACK_TEAMS;
-    usedFallback = true;
+    teams = getFromStorage();
+    if (teams && teams.length > 0) {
+      source = ' (from cache)';
+    } else {
+      teams = FALLBACK_TEAMS;
+      saveToStorage(teams);
+      source = ' (cached)';
+    }
   }
 
   if (teams.length > 0) {
@@ -701,7 +731,7 @@ async function loadLeaderboard() {
     }
     renderLeaderboard(teams);
     renderTeamDetails(teams);
-    elements.lastUpdate.textContent = new Date().toLocaleString() + (usedFallback ? ' (cached)' : '');
+    elements.lastUpdate.textContent = new Date().toLocaleString() + source;
   } else {
     elements.leaderboard.innerHTML = `
       <div class="error-message" style="grid-column: 1/-1;">
@@ -710,12 +740,17 @@ async function loadLeaderboard() {
     `;
   }
 
-  elements.loadingOverlay?.classList.add('hidden');
-  elements.refreshBtn?.classList.remove('loading');
+  if (!silent) {
+    elements.loadingOverlay?.classList.add('hidden');
+    elements.refreshBtn?.classList.remove('loading');
+  }
 }
 
-elements.refreshBtn?.addEventListener('click', loadLeaderboard);
-loadLeaderboard();
+elements.refreshBtn?.addEventListener('click', () => loadLeaderboard(false));
+loadLeaderboard(false);
+
+// Auto-update every 1 minute (silent - no loading overlay)
+setInterval(() => loadLeaderboard(true), 60000);
   </script>
 </body>
 </html>
