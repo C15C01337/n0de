@@ -1,0 +1,543 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>PortSwigger Lab Tracker</title>
+<style>
+  :root {
+    --bg: #0e1117;
+    --panel: #161b22;
+    --panel-2: #1c2230;
+    --border: #2a3040;
+    --text: #e6edf3;
+    --muted: #8b949e;
+    --accent: #ff6633;
+    --accent-soft: #ff663322;
+    --done: #2ea043;
+    --done-soft: #2ea04322;
+  }
+
+  * { box-sizing: border-box; }
+
+  body {
+    margin: 0;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    line-height: 1.4;
+  }
+
+  header {
+    padding: 24px 20px 16px;
+    border-bottom: 1px solid var(--border);
+    background: linear-gradient(180deg, #161b22, #0e1117);
+    position: sticky;
+    top: 0;
+    z-index: 10;
+    backdrop-filter: blur(6px);
+  }
+
+  .title-row {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    flex-wrap: wrap;
+  }
+
+  h1 {
+    margin: 0;
+    font-size: 22px;
+    letter-spacing: 0.3px;
+  }
+  h1 span { color: var(--accent); }
+
+  .session {
+    font-size: 12px;
+    color: var(--muted);
+    margin-left: auto;
+    text-align: right;
+  }
+  .session code {
+    color: var(--text);
+    background: var(--panel-2);
+    padding: 2px 6px;
+    border-radius: 4px;
+    font-size: 11px;
+  }
+
+  .controls {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    margin-top: 16px;
+    flex-wrap: wrap;
+  }
+
+  .progress-wrap {
+    flex: 1;
+    min-width: 200px;
+  }
+  .progress-bar {
+    height: 10px;
+    background: var(--panel-2);
+    border-radius: 6px;
+    overflow: hidden;
+    border: 1px solid var(--border);
+  }
+  .progress-fill {
+    height: 100%;
+    width: 0%;
+    background: linear-gradient(90deg, var(--accent), #ffb088);
+    transition: width 0.35s ease;
+  }
+  .progress-label {
+    font-size: 12px;
+    color: var(--muted);
+    margin-top: 6px;
+  }
+  .progress-label b { color: var(--text); }
+
+  .search {
+    flex: 1;
+    min-width: 180px;
+    background: var(--panel-2);
+    border: 1px solid var(--border);
+    color: var(--text);
+    padding: 8px 12px;
+    border-radius: 6px;
+    font-size: 14px;
+    outline: none;
+  }
+  .search:focus { border-color: var(--accent); }
+
+  button {
+    background: var(--panel-2);
+    border: 1px solid var(--border);
+    color: var(--text);
+    padding: 8px 14px;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 13px;
+    transition: background 0.15s, border-color 0.15s;
+  }
+  button:hover { border-color: var(--accent); background: var(--accent-soft); }
+
+  main {
+    max-width: 1000px;
+    margin: 0 auto;
+    padding: 20px;
+  }
+
+  .category {
+    margin-bottom: 22px;
+    background: var(--panel);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    overflow: hidden;
+  }
+
+  .category-head {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 12px 16px;
+    cursor: pointer;
+    user-select: none;
+    background: var(--panel-2);
+  }
+  .category-head:hover { background: #232a3a; }
+  .category-head h2 {
+    margin: 0;
+    font-size: 15px;
+    flex: 1;
+  }
+  .cat-count {
+    font-size: 12px;
+    color: var(--muted);
+    background: var(--bg);
+    padding: 2px 8px;
+    border-radius: 10px;
+    border: 1px solid var(--border);
+  }
+  .chevron { color: var(--muted); transition: transform 0.2s; font-size: 12px; }
+  .category.collapsed .chevron { transform: rotate(-90deg); }
+  .category.collapsed .lab-list { display: none; }
+
+  .lab-list { list-style: none; margin: 0; padding: 6px; }
+
+  .lab {
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+    padding: 10px 12px;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: background 0.12s;
+  }
+  .lab:hover { background: var(--panel-2); }
+
+  .lab input[type="checkbox"] {
+    appearance: none;
+    -webkit-appearance: none;
+    width: 18px;
+    height: 18px;
+    min-width: 18px;
+    margin-top: 1px;
+    border: 2px solid var(--border);
+    border-radius: 4px;
+    cursor: pointer;
+    position: relative;
+    background: var(--bg);
+    transition: background 0.15s, border-color 0.15s;
+  }
+  .lab input[type="checkbox"]:hover { border-color: var(--accent); }
+  .lab input[type="checkbox"]:checked {
+    background: var(--done);
+    border-color: var(--done);
+  }
+  .lab input[type="checkbox"]:checked::after {
+    content: "";
+    position: absolute;
+    left: 4px;
+    top: 0px;
+    width: 5px;
+    height: 10px;
+    border: solid #fff;
+    border-width: 0 2px 2px 0;
+    transform: rotate(45deg);
+  }
+
+  .lab-text { font-size: 14px; }
+  .lab.done .lab-text { color: var(--muted); text-decoration: line-through; }
+
+  .hidden { display: none !important; }
+
+  footer {
+    text-align: center;
+    color: var(--muted);
+    font-size: 12px;
+    padding: 24px;
+  }
+</style>
+</head>
+<body>
+<header>
+  <div class="title-row">
+    <h1><span>PortSwigger</span> Lab Tracker</h1>
+    <div class="session">
+      Session<br /><code id="sessionId">—</code>
+    </div>
+  </div>
+  <div class="controls">
+    <div class="progress-wrap">
+      <div class="progress-bar"><div class="progress-fill" id="progressFill"></div></div>
+      <div class="progress-label"><b id="doneCount">0</b> of <b id="totalCount">0</b> labs completed (<span id="progressPct">0</span>%)</div>
+    </div>
+    <input type="text" class="search" id="search" placeholder="Search labs..." />
+    <button id="expandAll">Expand all</button>
+    <button id="collapseAll">Collapse all</button>
+    <button id="resetBtn">Reset progress</button>
+  </div>
+</header>
+
+<main id="app"></main>
+
+<footer>Progress is saved locally in your browser. Each visit gets a fresh session ID.</footer>
+
+<script>
+(function () {
+  "use strict";
+
+  // ---- Lab data, grouped by category ----------------------------------
+  var DATA = [
+    ["SQL injection", [
+      "SQL injection vulnerability in WHERE clause allowing retrieval of hidden data",
+      "SQL injection vulnerability allowing login bypass",
+      "SQL injection UNION attack, finding a column containing text",
+      "SQL injection attack, querying the database type and version on Oracle",
+      "SQL injection UNION attack, retrieving data from other tables",
+      "Blind SQL injection with time delays"
+    ]],
+    ["Cross-site request forgery (CSRF)", [
+      "CSRF vulnerability with no defenses",
+      "CSRF where token validation depends on request method",
+      "CSRF where token validation depends on token being present"
+    ]],
+    ["Cross-site scripting (XSS)", [
+      "Reflected XSS into HTML context with nothing encoded",
+      "Stored XSS into HTML context with nothing encoded",
+      "DOM XSS in document.write sink using source location.search",
+      "DOM XSS in innerHTML sink using source location.search",
+      "Exploiting cross-site scripting to steal cookies",
+      "Exploiting cross-site scripting to capture passwords"
+    ]],
+    ["OS command injection", [
+      "OS command injection, simple case",
+      "Blind OS command injection with time delays",
+      "Blind OS command injection with output redirection",
+      "Blind OS command injection with out-of-band interaction",
+      "Blind OS command injection with out-of-band data exfiltration"
+    ]],
+    ["Path traversal", [
+      "File path traversal, simple case",
+      "File path traversal, traversal sequences blocked with absolute path bypass",
+      "File path traversal, traversal sequences stripped non-recursively",
+      "File path traversal, validation of start of path",
+      "File path traversal, validation of file extension with null byte bypass"
+    ]],
+    ["Information disclosure", [
+      "Information disclosure in error messages",
+      "Information disclosure on debug page",
+      "Source code disclosure via backup files",
+      "Authentication bypass via information disclosure",
+      "Information disclosure in version control history"
+    ]],
+    ["File upload vulnerabilities", [
+      "Remote code execution via web shell upload",
+      "Web shell upload via Content-Type restriction bypass",
+      "Web shell upload via extension blacklist bypass",
+      "Web shell upload via path traversal"
+    ]],
+    ["Authentication", [
+      "2FA simple bypass",
+      "Password reset broken logic",
+      "Username enumeration via different responses",
+      "Password brute-force via password change",
+      "Offline password cracking",
+      "2FA broken logic",
+      "Basic password reset poisoning",
+      "Host header authentication bypass",
+      "Authentication bypass via OAuth implicit flow"
+    ]],
+    ["CORS", [
+      "CORS vulnerability with basic origin reflection",
+      "CORS vulnerability with trusted null origin"
+    ]],
+    ["Access control", [
+      "Unprotected admin functionality",
+      "Unprotected admin functionality with unpredictable URL",
+      "User role controlled by request parameter",
+      "User role can be modified in user profile",
+      "User ID controlled by request parameter",
+      "User ID controlled by request parameter, with unpredictable user IDs",
+      "User ID controlled by request parameter with data leakage in redirect",
+      "User ID controlled by request parameter with password disclosure",
+      "Insecure direct object references"
+    ]],
+    ["JWT", [
+      "JWT authentication bypass via unverified signature",
+      "JWT authentication bypass via flawed signature verification"
+    ]],
+    ["GraphQL API vulnerabilities", [
+      "Accessing private GraphQL posts",
+      "Finding a hidden GraphQL endpoint"
+    ]],
+    ["Race conditions", [
+      "Limit overrun race conditions",
+      "Bypassing rate limits via race conditions"
+    ]],
+    ["NoSQL injection", [
+      "Detecting NoSQL injection",
+      "Exploiting NoSQL operator injection to bypass authentication"
+    ]],
+    ["API testing", [
+      "Exploiting an API endpoint using documentation",
+      "Exploiting a mass assignment vulnerability",
+      "Discovering vulnerabilities quickly with targeted scanning",
+      "Scanning non-standard data structures"
+    ]],
+    ["Web LLM attacks", [
+      "Indirect prompt injection",
+      "Exploiting AI agents to exfiltrate sensitive information",
+      "Exploiting AI agents to perform destructive actions"
+    ]],
+    ["Web cache deception", [
+      "Exploiting path mapping for web cache deception"
+    ]],
+    ["Clickjacking", [
+      "Basic clickjacking with CSRF token protection"
+    ]],
+    ["Server-side request forgery (SSRF)", [
+      "Basic SSRF against the local server",
+      "Basic SSRF against another back-end system"
+    ]],
+    ["XXE injection", [
+      "Exploiting XXE using external entities to retrieve files",
+      "Exploiting XXE to perform SSRF attacks"
+    ]]
+  ];
+
+  var STORAGE_KEY = "portswigger-lab-progress";
+
+  // ---- Session: fresh per visit --------------------------------------
+  function makeSessionId() {
+    var rnd = Math.random().toString(36).slice(2, 8);
+    var t = Date.now().toString(36).slice(-4);
+    return (t + rnd).toUpperCase();
+  }
+  var sessionId = makeSessionId();
+  document.getElementById("sessionId").textContent = sessionId;
+
+  // ---- Persistence ----------------------------------------------------
+  function loadProgress() {
+    try {
+      var raw = localStorage.getItem(STORAGE_KEY);
+      return raw ? JSON.parse(raw) : {};
+    } catch (e) {
+      return {};
+    }
+  }
+  function saveProgress(state) {
+    try {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+    } catch (e) {
+      /* storage unavailable */
+    }
+  }
+
+  var progress = loadProgress();
+
+  // Stable id for a lab (its full title is unique enough)
+  function labId(title) {
+    return title.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "");
+  }
+
+  // ---- Render ---------------------------------------------------------
+  var app = document.getElementById("app");
+  var totalLabs = 0;
+
+  DATA.forEach(function (group, gi) {
+    var catName = group[0];
+    var labs = group[1];
+    totalLabs += labs.length;
+
+    var cat = document.createElement("section");
+    cat.className = "category";
+
+    var head = document.createElement("div");
+    head.className = "category-head";
+    head.innerHTML =
+      '<span class="chevron">▼</span>' +
+      '<h2></h2>' +
+      '<span class="cat-count"></span>';
+    head.querySelector("h2").textContent = catName;
+    cat.appendChild(head);
+
+    var list = document.createElement("ul");
+    list.className = "lab-list";
+
+    labs.forEach(function (title) {
+      var id = labId(title);
+      var li = document.createElement("li");
+      li.className = "lab";
+      li.dataset.id = id;
+      li.dataset.search = title.toLowerCase();
+
+      var cb = document.createElement("input");
+      cb.type = "checkbox";
+      cb.checked = !!progress[id];
+
+      var span = document.createElement("span");
+      span.className = "lab-text";
+      span.textContent = title;
+
+      li.appendChild(cb);
+      li.appendChild(span);
+      list.appendChild(li);
+
+      if (cb.checked) li.classList.add("done");
+
+      function toggle(newVal) {
+        cb.checked = newVal;
+        li.classList.toggle("done", newVal);
+        if (newVal) progress[id] = true;
+        else delete progress[id];
+        saveProgress(progress);
+        updateStats();
+        updateCatCount(cat, list);
+      }
+
+      li.addEventListener("click", function (e) {
+        if (e.target === cb) return; // checkbox handles itself
+        toggle(!cb.checked);
+      });
+      cb.addEventListener("change", function () {
+        toggle(cb.checked);
+      });
+    });
+
+    cat.appendChild(list);
+    head.addEventListener("click", function () {
+      cat.classList.toggle("collapsed");
+    });
+
+    app.appendChild(cat);
+    updateCatCount(cat, list);
+  });
+
+  document.getElementById("totalCount").textContent = totalLabs;
+
+  // ---- Stats ----------------------------------------------------------
+  function countDone() {
+    return Object.keys(progress).length;
+  }
+  function updateStats() {
+    var done = countDone();
+    var pct = totalLabs ? Math.round((done / totalLabs) * 100) : 0;
+    document.getElementById("doneCount").textContent = done;
+    document.getElementById("progressPct").textContent = pct;
+    document.getElementById("progressFill").style.width = pct + "%";
+  }
+  function updateCatCount(cat, list) {
+    var labs = list.querySelectorAll(".lab");
+    var done = list.querySelectorAll(".lab.done").length;
+    cat.querySelector(".cat-count").textContent = done + " / " + labs.length;
+  }
+  updateStats();
+
+  // ---- Search ---------------------------------------------------------
+  document.getElementById("search").addEventListener("input", function (e) {
+    var q = e.target.value.trim().toLowerCase();
+    DATA.length; // noop
+    document.querySelectorAll(".category").forEach(function (cat) {
+      var anyVisible = false;
+      cat.querySelectorAll(".lab").forEach(function (li) {
+        var match = !q || li.dataset.search.indexOf(q) !== -1;
+        li.classList.toggle("hidden", !match);
+        if (match) anyVisible = true;
+      });
+      cat.classList.toggle("hidden", !anyVisible);
+      if (q) cat.classList.remove("collapsed");
+    });
+  });
+
+  // ---- Bulk controls --------------------------------------------------
+  document.getElementById("expandAll").addEventListener("click", function () {
+    document.querySelectorAll(".category").forEach(function (c) {
+      c.classList.remove("collapsed");
+    });
+  });
+  document.getElementById("collapseAll").addEventListener("click", function () {
+    document.querySelectorAll(".category").forEach(function (c) {
+      c.classList.add("collapsed");
+    });
+  });
+  document.getElementById("resetBtn").addEventListener("click", function () {
+    if (!confirm("Reset all lab progress? This clears your saved checkmarks.")) return;
+    progress = {};
+    saveProgress(progress);
+    document.querySelectorAll(".lab").forEach(function (li) {
+      li.classList.remove("done");
+      var cb = li.querySelector("input");
+      if (cb) cb.checked = false;
+    });
+    document.querySelectorAll(".category").forEach(function (cat) {
+      updateCatCount(cat, cat.querySelector(".lab-list"));
+    });
+    updateStats();
+  });
+})();
+</script>
+</body>
+</html>
